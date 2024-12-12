@@ -1,0 +1,42 @@
+{
+  "executable": "electronNET",
+  "splashscreen": {
+    "imageFile": ""
+  },
+  "name": "electronNET",
+  "author": "",
+  "singleInstance": false,
+  "environment": "Production",
+  "build": {
+    "appId": "com.electronNET.app",
+    "productName": "electronNET",
+    "copyright": "Copyright © 2020",
+    "buildVersion": "1.0.0",
+    "compression": "maximum",
+    "directories": {
+      "output": "../../../bin/Desktop"
+    },
+    "extraResources": [
+      {
+        "from": "./bin",
+        "to": "bin",
+        "filter": [ "**/*" ]
+      },
+      {
+        "from": "../../../preload.js",
+        "to": "./bin/preload.js"
+      }
+    ],
+    "files": [
+      {
+        "from": "./ElectronHostHook/node_modules",
+        "to": "ElectronHostHook/node_modules",
+        "filter": [ "**/*" ]
+      },
+      "**/*",
+      "preload.js"
+    ]
+  },
+  "electronPort": 8080,
+  "preload": "preload.js"
+}

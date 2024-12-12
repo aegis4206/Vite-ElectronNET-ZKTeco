@@ -1,0 +1,6 @@
+@electronNET_HostAddress = http://localhost:5080
+
+GET {{electronNET_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
