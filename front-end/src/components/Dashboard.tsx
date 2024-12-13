@@ -9,21 +9,23 @@ import { Button, TextField, Snackbar, Alert, IconButton } from '@mui/material';
 import { useState, useEffect } from 'react';
 
 
-interface device {
+interface Device {
   ip: string,
+  name: string,
   connected: boolean,
 }
 
 export default function Dashboard() {
-  const [deviceList, setDeviceList] = useState<device[]>([]);
+  const [deviceList, setDeviceList] = useState<Device[]>([]);
   const [ipText, setIpText] = useState<string>('');
+  const [nameText, setNameText] = useState<string>('');
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
   const isConnected = deviceList.some(device => device.connected)
 
   useEffect(() => {
     const list = localStorage.getItem("list")
     if (list != null) {
-      const newList = JSON.parse(list).map((ip: string) => ({ ip, connected: false }))
+      const newList = JSON.parse(list).map((device: Device) => ({ ...device, connected: false }))
       setDeviceList(newList)
     }
   }, [])
@@ -37,20 +39,22 @@ export default function Dashboard() {
     if (isValidIPv4Strict(ipText)) {
       const newList = [...deviceList, {
         ip: ipText,
+        name: nameText,
         connected: false
       }]
       setDeviceList(newList)
-      localStorage.setItem("list", JSON.stringify(newList.map(device => device.ip)))
+      localStorage.setItem("list", JSON.stringify(newList))
     } else {
       setSnackbarOpen(true)
     }
     setIpText('')
+    setNameText('')
   }
 
   const handleDeleteDevice = (ip: string) => {
     const newList = deviceList.filter(device => device.ip != ip)
     setDeviceList(newList)
-    localStorage.setItem("list", JSON.stringify(newList.map(device => device.ip)))
+    localStorage.setItem("list", JSON.stringify(newList))
   }
 
   const handleConnectDevice = () => {
@@ -73,7 +77,7 @@ export default function Dashboard() {
   const handleConnectMessage = (_: unknown, data: unknown) => {
     const message = data as string[];
     const ip = message[0];
-    setDeviceList(preList => (preList.map(device => ({ ...device, connected: device.ip == ip ? true : false }))))
+    setDeviceList(preList => (preList.map(device => ({ ...device, connected: device.ip == ip ? true : device.connected }))))
   };
 
   return (
@@ -81,7 +85,7 @@ export default function Dashboard() {
       <div>
         <List sx={{ width: '100%', maxWidth: 240, bgcolor: 'background.paper' }}>
           {deviceList.length == 0 ? "尚未新增IP" : deviceList.map(device => {
-            return <ListItem key={device.ip}
+            return <ListItem key={device.ip + device.name}
               secondaryAction={
                 <IconButton disabled={isConnected} onClick={() => handleDeleteDevice(device.ip)}>
                   <DeleteForeverIcon color='error' />
@@ -91,13 +95,23 @@ export default function Dashboard() {
               <ListItemAvatar>
                 {device.connected ? <PublicIcon color='success' /> : <PublicOffIcon />}
               </ListItemAvatar>
-              <ListItemText primary={device.ip} />
+              <ListItemText primary={device.name} secondary={device.ip} />
             </ListItem>
           })}
         </List>
       </div>
       <br></br>
       <div>
+        <TextField
+          value={nameText}
+          onChange={e => setNameText(e.target.value)}
+          type='text'
+          color='warning'
+          label='Name'
+          variant="outlined"
+        ></TextField >
+        <br></br>
+        <br></br>
         <TextField
           value={ipText}
           onChange={e => setIpText(e.target.value)}
@@ -109,7 +123,7 @@ export default function Dashboard() {
         <br></br>
         <br></br>
         <Button variant="outlined" disabled={isConnected} onClick={handleAddDevice} style={{ marginRight: "1em" }}>新增</Button>
-        <Button variant="outlined" disabled={isConnected} onClick={handleConnectDevice} color='success' style={{ marginRight: "1em" }}>連線</Button>
+        <Button variant="outlined" disabled={isConnected || deviceList.length == 0} onClick={handleConnectDevice} color='success' style={{ marginRight: "1em" }}>連線</Button>
         <Button variant="outlined" disabled={!isConnected} onClick={handleDisConnectDevice} color='error'>斷線</Button>
       </div>
       <Snackbar

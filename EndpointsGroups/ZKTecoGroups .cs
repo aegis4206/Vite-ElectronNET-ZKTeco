@@ -10,46 +10,48 @@ using Newtonsoft.Json.Linq;
 namespace electronNET.EndpointsGroups
 {
 
-    public static class ZTKecoGroups
+    public class ZKTecoGroups
     {
 
         public static void TCPConnect(BrowserWindow window, string ip)
         {
-            var logChannel = Channel.CreateUnbounded<string>();
-            var zkemService = new ZKEMService(ip, 4370, 987123, logChannel, window);
-            zkemService.StartAsync();
+            //var logChannel = Channel.CreateUnbounded<string>();
+            //var zkemService = new ZKEMService(ip, 4370, 987123, window);
+            //zkemService.StartAsync();
 
 
-            var cts = new CancellationTokenSource();
-            var cancellationToken = cts.Token;
+            //var cts = new CancellationTokenSource();
+            //var cancellationToken = cts.Token;
 
-            var logChannelTask = Task.Run(async () =>
-            {
-                while (await logChannel.Reader.WaitToReadAsync(cancellationToken))
-                {
-                    while (logChannel.Reader.TryRead(out var log))
-                    {
-                        Console.WriteLine("send message");
-                        Electron.IpcMain.Send(window, "check", log);
-                    }
-                }
-            }, cancellationToken);
+            //var logChannelTask = Task.Run(async () =>
+            //{
+            //    while (await logChannel.Reader.WaitToReadAsync(cancellationToken))
+            //    {
+            //        while (logChannel.Reader.TryRead(out var log))
+            //        {
+            //            Console.WriteLine("send message");
+            //            Electron.IpcMain.Send(window, "check", log);
+            //        }
+            //    }
+            //}, cancellationToken);
             //await logChannelTask;
+
+
 
         }
         public class ZKEMService
         {
             public readonly CZKEMClass _zkem;
-            private readonly Channel<string> _logChannel;
-            private readonly string _ipAddress;
-            private readonly int _port;
-            private readonly int _password;
-            private readonly BrowserWindow _window;
+            //private readonly Channel<string> _logChannel;
+            public readonly string _ipAddress;
+            public readonly int _port;
+            public readonly int _password;
+            public readonly BrowserWindow _window;
 
 
-            public ZKEMService(string ipAddress, int port, int password, Channel<string> logChannel, BrowserWindow window)
+            public ZKEMService(string ipAddress, int port, int password, BrowserWindow window)
             {
-                _logChannel = logChannel;
+                //_logChannel = logChannel;
                 _zkem = new CZKEMClass();
                 _ipAddress = ipAddress;
                 _port = port;
@@ -76,18 +78,10 @@ namespace electronNET.EndpointsGroups
                     }
                     Electron.IpcMain.Send(_window, "connectZKTeco", _ipAddress);
                     Electron.IpcMain.Send(_window, "check", $"{_ipAddress}連線成功");
-
-                    Electron.IpcMain.On("disconnectZKTeco", (dynamic args) =>
-                    {
-                        _zkem.OnDisConnected -= new _IZKEMEvents_OnDisConnectedEventHandler(OnDisConnected);
-                        _zkem.Disconnect();
-                        Electron.IpcMain.Send(_window, "check", $"{_ipAddress}離線成功");
-                    });
-
                 }
                 else
                 {
-                    Electron.IpcMain.Send(_window, "connectZKTeco", _ipAddress);
+                    //Electron.IpcMain.Send(_window, "connectZKTeco", _ipAddress);
                     Electron.IpcMain.Send(_window, "check", $"{_ipAddress}連線失敗");
 
                     return;
@@ -124,13 +118,20 @@ namespace electronNET.EndpointsGroups
                 }
                 string logData = $"{attState} 打卡 工號: {EnrollNumber}, 日期: {Year}-{Month}-{Day}, 時間: {Hour}:{Minute}:{Second}";
                 Console.WriteLine(logData);
+                Console.WriteLine("send message");
+                Electron.IpcMain.Send(_window, "check", logData);
 
-                _logChannel.Writer.TryWrite(logData);
+                //_logChannel.Writer.TryWrite(logData);
             }
             public void OnDisConnected()
             {
                 Electron.IpcMain.Send(_window, "check", $"{_ipAddress}斷線重新連線中");
                 StartAsync();
+            }
+            public void CleanEvent()
+            {
+                _zkem.OnAttTransactionEx -= new _IZKEMEvents_OnAttTransactionExEventHandler(OnAttTransactionEx);
+                _zkem.OnDisConnected -= new _IZKEMEvents_OnDisConnectedEventHandler(OnDisConnected);
             }
         }
     }
