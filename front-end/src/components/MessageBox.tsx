@@ -18,12 +18,12 @@ const MessageBox = () => {
 
     const handleMessage = (_: unknown, data: unknown) => {
         const message = data as string[];
-        setMessageList(pre => [...pre, message[0]])
+        setMessageList(pre => [message[0], ...pre])
     };
 
 
     return (
-        <div>
+        <div className=''>
             <List sx={{ width: '100%', maxWidth: 640, bgcolor: 'background.paper' }}>
                 {messageList.map((value, index) => {
                     return <ListItem key={index}>

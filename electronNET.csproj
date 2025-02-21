@@ -11,8 +11,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Reference Include="Interop.zkemkeeper">
-	    <HintPath>EndpointsGroups\Interop.zkemkeeper.dll</HintPath>
-	    <EmbedInteropTypes>False</EmbedInteropTypes>
+	    <HintPath>..\..\Interop.zkemkeeper.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 	<ItemGroup>

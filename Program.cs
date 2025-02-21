@@ -2,12 +2,7 @@ using electronNET.EndpointsGroups;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
 using Newtonsoft.Json.Linq;
-using SocketIOClient;
-using System.Net;
 using static electronNET.EndpointsGroups.ZKTecoGroups;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Interop.zkemkeeper;
-
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -45,6 +40,7 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 
+
 // 啟用 Electron
 if (HybridSupport.IsElectronActive)
 {
@@ -75,6 +71,7 @@ async void ElectronBootstrap()
         Show = false,
         Width = 1280,
         Height = 720,
+        AutoHideMenuBar = true,
         WebPreferences = new WebPreferences
         {
             Preload = Path.Combine(projectRoot, "preload.js"),
@@ -133,7 +130,8 @@ async void ElectronBootstrap()
     }
     void RemoveListener()
     {
-        if (ZKEMServiceList.Count > 0) {
+        if (ZKEMServiceList.Count > 0)
+        {
             ZKEMServiceList.ForEach((zkem) =>
             {
                 zkem.CleanEvent();
